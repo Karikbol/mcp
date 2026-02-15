@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "telegram-bot-mcp-stdio": {
+      "command": "node",
+      "args": ["/absolute/path/to/MCP/dist/stdio-entry.js"],
+      "env": {
+        "DATABASE_URL": "postgresql://mcp:mcp_password@localhost:5432/mcp_db",
+        "REDIS_URL": "redis://localhost:6379"
+      }
+    },
+    "telegram-bot-mcp-http": {
+      "type": "streamable-http",
+      "url": "https://mcp.qgsm.store",
+      "headers": {
+        "Authorization": "Bearer YOUR_MCP_BEARER_TOKEN",
+        "X-MCP-User-Id": "123456789"
+      }
+    }
+  }
+}

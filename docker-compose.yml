@@ -1,0 +1,70 @@
+services:
+  mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "127.0.0.1:3100:3100"
+    environment:
+      - NODE_ENV=production
+      - PORT=3100
+      - MCP_BEARER_TOKEN=${MCP_BEARER_TOKEN}
+      - ADMIN_IDS=${ADMIN_IDS:-}
+      - DATABASE_URL=postgresql://mcp:mcp_password@postgres:5432/mcp_db
+      - REDIS_URL=redis://redis:6379
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-deepseek-r1:1.5b}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_FALLBACK_ENABLED=${OPENAI_FALLBACK_ENABLED:-false}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: mcp
+      POSTGRES_PASSWORD: mcp_password
+      POSTGRES_DB: mcp_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mcp -d mcp_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama_data:/root/.ollama
+    # CPU-only: no GPU, runs on CPU
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+    # Pull lightweight model for CPU (smaller = faster on CPU)
+    environment:
+      - OLLAMA_NUM_PARALLEL=1
+      - OLLAMA_MAX_LOADED_MODELS=1
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  ollama_data:
