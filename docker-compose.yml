@@ -12,17 +12,18 @@ services:
       - ADMIN_IDS=${ADMIN_IDS:-}
       - DATABASE_URL=postgresql://mcp:mcp_password@postgres:5432/mcp_db
       - REDIS_URL=redis://redis:6379
-      - OLLAMA_BASE_URL=http://ollama:11434
-      - OLLAMA_MODEL=${OLLAMA_MODEL:-deepseek-r1:1.5b}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
-      - OPENAI_FALLBACK_ENABLED=${OPENAI_FALLBACK_ENABLED:-false}
+      - OPENAI_ONLY=${OPENAI_ONLY:-true}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+      - VPS_FS_BASE_PATH=${VPS_FS_BASE_PATH:-/www/wwwroot/telegrambot}
+      - VPS_SHELL_TIMEOUT_SEC=${VPS_SHELL_TIMEOUT_SEC:-60}
+    volumes:
+      - ${VPS_FS_MOUNT_PATH:-/www/wwwroot/telegrambot}:/www/wwwroot/telegrambot
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-      ollama:
-        condition: service_started
     restart: unless-stopped
 
   postgres:
@@ -49,22 +50,6 @@ services:
       timeout: 3s
       retries: 5
 
-  ollama:
-    image: ollama/ollama:latest
-    volumes:
-      - ollama_data:/root/.ollama
-    # CPU-only: no GPU, runs on CPU
-    deploy:
-      resources:
-        limits:
-          memory: 4G
-    # Pull lightweight model for CPU (smaller = faster on CPU)
-    environment:
-      - OLLAMA_NUM_PARALLEL=1
-      - OLLAMA_MAX_LOADED_MODELS=1
-    restart: unless-stopped
-
 volumes:
   postgres_data:
   redis_data:
-  ollama_data:

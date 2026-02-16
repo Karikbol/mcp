@@ -27,6 +27,9 @@ export const config = {
 
   openai: {
     apiKey: process.env.OPENAI_API_KEY ?? "",
+    /** Use only OpenAI (no Ollama). Default true for VPS with limited RAM. */
+    only: process.env.OPENAI_ONLY !== "false",
+    model: process.env.OPENAI_MODEL ?? process.env.OPENAI_FALLBACK_MODEL ?? "gpt-4o-mini",
     fallbackEnabled: process.env.OPENAI_FALLBACK_ENABLED === "true",
     fallbackModel: process.env.OPENAI_FALLBACK_MODEL ?? "gpt-4o-mini",
   },
@@ -35,6 +38,11 @@ export const config = {
     ipPerMin: parseInt(process.env.RATE_LIMIT_IP_PER_MIN ?? "60", 10),
     userPerDay: parseInt(process.env.RATE_LIMIT_USER_PER_DAY ?? "200", 10),
   },
+
+  /** Base path for VPS fs/shell tools. All operations restricted to this directory. Mount host path in Docker. */
+  vpsFsBasePath: process.env.VPS_FS_BASE_PATH ?? "/www/wwwroot/telegrambot",
+  /** Max timeout for shell.exec (seconds). */
+  vpsShellTimeoutSec: Math.min(120, Math.max(5, parseInt(process.env.VPS_SHELL_TIMEOUT_SEC ?? "60", 10) || 60)),
 } as const;
 
 /** Safe for logging - masks secrets */

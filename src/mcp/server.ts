@@ -107,5 +107,52 @@ export function createMcpServer() {
     wrapTool("admin.ai_chat", toolHandlers["admin.ai_chat"])
   );
 
+  server.registerTool(
+    "vps_fs_list",
+    {
+      description: "List files/directories on VPS under allowed base path (e.g. /www/wwwroot/telegrambot)",
+      inputSchema: z.object({
+        path: z.string().optional().describe("Path relative to base or absolute (must be under VPS_FS_BASE_PATH)"),
+      }),
+    },
+    wrapTool("vps.fs_list", toolHandlers["vps.fs_list"])
+  );
+
+  server.registerTool(
+    "vps_fs_copy",
+    {
+      description: "Copy file or directory on VPS. Paths must be under allowed base.",
+      inputSchema: z.object({
+        source: z.string().describe("Source path (file or directory)"),
+        destination: z.string().describe("Destination path"),
+      }),
+    },
+    wrapTool("vps.fs_copy", toolHandlers["vps.fs_copy"])
+  );
+
+  server.registerTool(
+    "vps_fs_move",
+    {
+      description: "Move (rename) file or directory on VPS. Paths must be under allowed base.",
+      inputSchema: z.object({
+        source: z.string().describe("Source path"),
+        destination: z.string().describe("Destination path"),
+      }),
+    },
+    wrapTool("vps.fs_move", toolHandlers["vps.fs_move"])
+  );
+
+  server.registerTool(
+    "vps_shell_exec",
+    {
+      description: "Run shell command on VPS (cwd = base path or optional cwd). Timeout 60s by default. E.g. ls -la, cp -r MCP ybrjch.qgsm.store, docker compose up -d",
+      inputSchema: z.object({
+        command: z.string().describe("Shell command to run (e.g. ls -la, docker compose -f docker-compose.telegram.yml up -d)"),
+        cwd: z.string().optional().describe("Working directory (relative to base or absolute under base)"),
+      }),
+    },
+    wrapTool("vps.shell_exec", toolHandlers["vps.shell_exec"])
+  );
+
   return server;
 }

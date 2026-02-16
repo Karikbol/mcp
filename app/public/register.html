@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Регистрация</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script type="module" src="/webapp/register.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 16px; margin: 0; background: var(--tg-theme-bg-color, #fff); color: var(--tg-theme-text-color, #000); }
+    .step { display: none; }
+    .step.active { display: block; }
+    label { display: block; margin-top: 12px; margin-bottom: 4px; font-size: 14px; }
+    input, select { width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 8px; }
+    input.error { border-color: #c00; }
+    .error-msg { color: #c00; font-size: 12px; margin-top: 4px; }
+    .row { display: flex; gap: 8px; }
+    .row select { width: 120px; flex-shrink: 0; }
+    .row input { flex: 1; }
+    button { width: 100%; padding: 14px; margin-top: 16px; font-size: 16px; background: var(--tg-theme-button-color, #2481cc); color: var(--tg-theme-button-text-color, #fff); border: none; border-radius: 8px; cursor: pointer; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .success { text-align: center; padding: 24px; }
+    h1 { font-size: 20px; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="step-name" class="step active">
+      <h1>Регистрация</h1>
+      <label>Имя</label>
+      <input type="text" id="first_name" placeholder="Имя" maxlength="100" />
+      <label>Фамилия</label>
+      <input type="text" id="last_name" placeholder="Фамилия" maxlength="100" />
+      <button type="button" id="btn-next-name">Далее</button>
+    </div>
+    <div id="step-phone" class="step">
+      <h1>Номер телефона</h1>
+      <div class="row">
+        <select id="country"></select>
+        <input type="tel" id="phone_national" placeholder="Номер" inputmode="numeric" />
+      </div>
+      <p class="error-msg" id="phone-error"></p>
+      <button type="button" id="btn-next-phone" disabled>Далее</button>
+    </div>
+    <div id="step-phone-confirm" class="step">
+      <h1>Подтвердите номер</h1>
+      <input type="tel" id="phone_confirm" placeholder="Повторите номер" inputmode="numeric" />
+      <p class="error-msg" id="confirm-error"></p>
+      <button type="button" id="btn-next-confirm" disabled>Далее</button>
+    </div>
+    <div id="step-pin" class="step">
+      <h1>PIN (6 цифр)</h1>
+      <input type="password" id="pin" placeholder="••••••" inputmode="numeric" maxlength="6" />
+      <p class="error-msg" id="pin-error"></p>
+      <button type="button" id="btn-next-pin" disabled>Далее</button>
+    </div>
+    <div id="step-pin-confirm" class="step">
+      <h1>Подтвердите PIN</h1>
+      <input type="password" id="pin_confirm" placeholder="Повторите PIN" inputmode="numeric" maxlength="6" />
+      <p class="error-msg" id="pin-confirm-error"></p>
+      <button type="button" id="btn-submit" disabled>Зарегистрироваться</button>
+    </div>
+    <div id="step-success" class="step success">
+      <h1>Регистрация завершена</h1>
+      <p>Можете закрыть окно.</p>
+    </div>
+  </div>
+</body>
+</html>

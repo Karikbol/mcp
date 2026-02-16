@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Восстановление</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 16px; margin: 0; background: var(--tg-theme-bg-color, #fff); color: var(--tg-theme-text-color, #000); }
+    .step { display: none; }
+    .step.active { display: block; }
+    label { display: block; margin-top: 12px; margin-bottom: 4px; font-size: 14px; }
+    input, select { width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 8px; }
+    input.error { border-color: #c00; }
+    .error-msg { color: #c00; font-size: 12px; margin-top: 4px; }
+    .row { display: flex; gap: 8px; }
+    .row select { width: 120px; flex-shrink: 0; }
+    .row input { flex: 1; }
+    button { width: 100%; padding: 14px; margin-top: 16px; font-size: 16px; background: var(--tg-theme-button-color, #2481cc); color: var(--tg-theme-button-text-color, #fff); border: none; border-radius: 8px; cursor: pointer; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .success { text-align: center; padding: 24px; }
+    h1 { font-size: 20px; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="step-phone" class="step active">
+      <h1>Восстановление доступа</h1>
+      <label>Номер телефона</label>
+      <div class="row">
+        <select id="country"></select>
+        <input type="tel" id="phone_national" placeholder="Номер" inputmode="numeric" />
+      </div>
+      <p class="error-msg" id="phone-error"></p>
+      <button type="button" id="btn-request-otp" disabled>Отправить код</button>
+    </div>
+    <div id="step-otp" class="step">
+      <h1>Код из SMS</h1>
+      <p id="neutral-msg">Если данные верны — код отправлен.</p>
+      <input type="text" id="otp_code" placeholder="6 цифр" inputmode="numeric" maxlength="6" />
+      <p class="error-msg" id="otp-error"></p>
+      <button type="button" id="btn-verify-otp">Проверить</button>
+    </div>
+    <div id="step-pin" class="step">
+      <h1>Введите PIN</h1>
+      <input type="password" id="pin" placeholder="PIN" inputmode="numeric" maxlength="6" />
+      <p class="error-msg" id="pin-error"></p>
+      <button type="button" id="btn-verify-pin">Подтвердить</button>
+    </div>
+    <div id="step-success" class="step success">
+      <h1>Восстановление выполнено</h1>
+      <p>Можете закрыть окно.</p>
+    </div>
+    <div id="step-error" class="step">
+      <h1>Ошибка</h1>
+      <p id="error-text"></p>
+      <p>Обратитесь к администратору.</p>
+    </div>
+  </div>
+  <script type="module" src="/webapp/recover.js"></script>
+</body>
+</html>

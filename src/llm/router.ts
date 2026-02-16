@@ -18,50 +18,52 @@ export type LLMResponse = {
   latencyMs: number;
 };
 
+async function completeWithOpenAI(start: number, prompt: string): Promise<LLMResponse> {
+  if (!openaiClient) {
+    throw new Error("OpenAI API key not set. Set OPENAI_API_KEY.");
+  }
+  const model = config.openai.model;
+  const response = await openaiClient.chat.completions.create({
+    model,
+    messages: [{ role: "user", content: prompt }],
+    max_tokens: 2048,
+  });
+  const content = response.choices[0]?.message?.content ?? "No response";
+  const latencyMs = Date.now() - start;
+  logger.debug({ model, latencyMs }, "LLM OpenAI success");
+  return { content, model, latencyMs };
+}
+
+async function completeWithOllama(start: number, prompt: string): Promise<LLMResponse> {
+  const localResponse = await ollamaClient.chat.completions.create({
+    model: config.ollama.model,
+    messages: [{ role: "user", content: prompt }],
+    max_tokens: 2048,
+  });
+  const content =
+    localResponse.choices[0]?.message?.content ?? "No response from model";
+  const model = localResponse.model ?? config.ollama.model;
+  const latencyMs = Date.now() - start;
+  logger.debug({ model, latencyMs }, "LLM Ollama success");
+  return { content, model, latencyMs };
+}
+
 export async function complete(prompt: string): Promise<LLMResponse> {
   const start = Date.now();
 
+  if (config.openai.only && config.openai.apiKey) {
+    return completeWithOpenAI(start, prompt);
+  }
+
   try {
-    const localResponse = await ollamaClient.chat.completions.create({
-      model: config.ollama.model,
-      messages: [{ role: "user", content: prompt }],
-      max_tokens: 2048,
-    });
-
-    const content =
-      localResponse.choices[0]?.message?.content ?? "No response from model";
-    const model = localResponse.model ?? config.ollama.model;
-    const latencyMs = Date.now() - start;
-
-    logger.debug({ model, latencyMs }, "LLM local (Ollama) success");
-    return { content, model, latencyMs };
+    return await completeWithOllama(start, prompt);
   } catch (err) {
     logger.warn({ err }, "Ollama failed, trying OpenAI fallback");
-
     if (!config.openai.fallbackEnabled || !openaiClient) {
       throw new Error(
         "Ollama failed and OpenAI fallback is disabled or no API key. Set OPENAI_FALLBACK_ENABLED=true and OPENAI_API_KEY."
       );
     }
-
-    const fallbackResponse = await openaiClient.chat.completions.create({
-      model: config.openai.fallbackModel,
-      messages: [{ role: "user", content: prompt }],
-      max_tokens: 2048,
-    });
-
-    const content =
-      fallbackResponse.choices[0]?.message?.content ?? "No response";
-    const latencyMs = Date.now() - start;
-
-    logger.info(
-      { model: config.openai.fallbackModel, latencyMs },
-      "LLM fallback (OpenAI) success"
-    );
-    return {
-      content,
-      model: config.openai.fallbackModel,
-      latencyMs,
-    };
+    return completeWithOpenAI(start, prompt);
   }
 }

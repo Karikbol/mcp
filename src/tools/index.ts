@@ -3,6 +3,7 @@ import { query } from "../db/client.js";
 import { config } from "../config.js";
 import { complete } from "../llm/router.js";
 import { logger } from "../logger.js";
+import * as vpsFs from "./vpsFs.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 
 function ok(text: string, isError = false): CallToolResult {
@@ -115,6 +116,11 @@ export const toolHandlers = {
       return ok(JSON.stringify({ error: String(e) }), true);
     }
   },
+
+  "vps.fs_list": (params: { path?: string }) => vpsFs.fsList(params),
+  "vps.fs_copy": (params: { source: string; destination: string }) => vpsFs.fsCopy(params),
+  "vps.fs_move": (params: { source: string; destination: string }) => vpsFs.fsMove(params),
+  "vps.shell_exec": (params: { command: string; cwd?: string }) => vpsFs.shellExec(params),
 };
 
 export const toolSchemas = {
@@ -131,4 +137,8 @@ export const toolSchemas = {
     provider: z.string().optional(),
   },
   "admin.ai_chat": { message: z.string(), user_id: z.string() },
+  "vps.fs_list": { path: z.string().optional() },
+  "vps.fs_copy": { source: z.string(), destination: z.string() },
+  "vps.fs_move": { source: z.string(), destination: z.string() },
+  "vps.shell_exec": { command: z.string(), cwd: z.string().optional() },
 } as const;
